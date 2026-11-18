@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prendre RDV · Cabinet Les Allées</title>
+<!-- Prototype fictif pour l'atelier « Du design au dev ». Données inventées. -->
+<style>
+  :root { --bg:#f6f4ef; --card:#fff; --ink:#1f2a2e; --muted:#5d6a6e; --line:#dcd8cf; --accent:#1f6f6a; --accent-ink:#fff; --soft:#e5f0ee; --warn:#fff4dc; --warn-line:#e0b85a; }
+  * { box-sizing:border-box; }
+  body { margin:0; font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif; background:var(--bg); color:var(--ink); }
+  header { background:var(--card); border-bottom:1px solid var(--line); padding:14px 16px; display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; }
+  header strong { font-size:18px; }
+  .tel { color:var(--accent); font-weight:600; text-decoration:none; }
+  main { max-width:680px; margin:0 auto; padding:20px 16px 48px; }
+  .steps { display:flex; gap:6px; margin-bottom:18px; }
+  .steps span { flex:1; height:4px; border-radius:2px; background:var(--line); }
+  .steps span.on { background:var(--accent); }
+  h1 { font-size:22px; margin:0 0 4px; }
+  h1:focus { outline:none; }
+  .sub { color:var(--muted); margin:0 0 18px; }
+  h2 { font-size:14px; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); margin:22px 0 8px; }
+  .opt { display:block; width:100%; text-align:left; background:var(--card); border:1px solid var(--line); border-radius:10px; padding:12px 14px; margin:0 0 8px; font:inherit; color:inherit; cursor:pointer; }
+  .opt:hover, .opt:focus-visible { border-color:var(--accent); outline:none; box-shadow:0 0 0 2px var(--soft); }
+  .opt small { display:block; color:var(--muted); }
+  .opt.sel { border-color:var(--accent); background:var(--soft); }
+  .tag { display:inline-block; font-size:12px; padding:1px 8px; border-radius:10px; background:var(--soft); color:var(--accent); margin-left:6px; }
+  .note { background:var(--warn); border:1px solid var(--warn-line); border-radius:10px; padding:10px 14px; margin:0 0 16px; }
+  .days { display:grid; gap:10px; }
+  .day { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:10px 14px; }
+  .day b { display:block; margin-bottom:6px; }
+  .slots { display:flex; flex-wrap:wrap; gap:6px; }
+  .slot { border:1px solid var(--accent); color:var(--accent); background:var(--card); border-radius:8px; padding:6px 10px; font:inherit; cursor:pointer; }
+  .slot.sel { background:var(--accent); color:var(--accent-ink); }
+  label { display:block; font-weight:600; margin:12px 0 4px; }
+  input[type=text], input[type=tel], input[type=date], select { width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:8px; font:inherit; background:var(--card); }
+  .row { display:flex; gap:12px; } .row > div { flex:1; }
+  .check { display:flex; gap:8px; align-items:flex-start; font-weight:400; }
+  .actions { display:flex; justify-content:space-between; gap:12px; margin-top:22px; }
+  .btn { font:inherit; border-radius:10px; padding:11px 18px; cursor:pointer; border:1px solid var(--accent); }
+  .btn.primary { background:var(--accent); color:var(--accent-ink); }
+  .btn.ghost { background:transparent; color:var(--accent); }
+  .btn[disabled] { opacity:.45; cursor:not-allowed; }
+  .recap { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px; }
+  .recap p { margin:4px 0; }
+  footer { text-align:center; color:var(--muted); font-size:14px; padding:0 16px 24px; }
+  @media (max-width:520px){ .row { flex-direction:column; gap:0; } }
+</style>
+</head>
+<body>
+<header>
+  <strong>Cabinet Les Allées</strong>
+  <span>Une question ? <a class="tel" href="#">05 xx xx xx xx</a> <small>(lun–jeu, 8 h 30–12 h 30)</small></span>
+</header>
+<main id="app"></main>
+<footer>Prototype fictif · atelier « Du design au dev » · Bayonne 11/2026</footer>
+
+<script>
+const PRAT = {
+  julie:  { nom:"Julie Marty", metier:"Kinésithérapeute", jours:[1,2,3,4,5] },
+  karim:  { nom:"Karim Benali", metier:"Kinésithérapeute", jours:[2,3,4,5,6] },
+  sophie: { nom:"Sophie Etcheverry", metier:"Ostéopathe", jours:[1,3,5] },
+  camille:{ nom:"Camille Iriart", metier:"Orthophoniste", jours:[1,2,3,4] }
+};
+const MOTIFS = [
+  { id:"kine1", groupe:"Kinésithérapie", label:"Première séance de kiné", aide:"Avec une ordonnance de votre médecin", duree:45, prats:["julie","karim"], ordo:true },
+  { id:"kineSuivi", groupe:"Kinésithérapie", label:"Je suis déjà en séances de kiné", aide:"Réserver mes prochaines séances", duree:30, prats:["julie","karim"], serie:true },
+  { id:"postop", groupe:"Kinésithérapie", label:"Rééducation après une opération", aide:"Genou, épaule…", duree:45, prats:["julie"], ordo:true, cro:true },
+  { id:"domicile", groupe:"Kinésithérapie", label:"Kiné à domicile", aide:"Bayonne, Anglet, Boucau", rappel:true },
+  { id:"osteo", groupe:"Ostéopathie", label:"Ostéopathie adulte", aide:"Sans ordonnance", duree:45, prats:["sophie"] },
+  { id:"enceinte", groupe:"Ostéopathie", label:"Ostéopathie pendant la grossesse", aide:"Sans ordonnance", duree:45, prats:["sophie"] },
+  { id:"nourrisson", groupe:"Ostéopathie", label:"Ostéopathie pour un nourrisson", aide:"Nous vous rappelons pour trouver le bon moment", rappel:true },
+  { id:"ortho", groupe:"Orthophonie", label:"Orthophonie (bilan ou séances)", aide:"Camille Iriart vous recontacte", rappel:true }
+];
+const JOURS = ["dim.","lun.","mar.","mer.","jeu.","ven.","sam."];
+const MOIS = ["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];
+
+const S = { step:"motif", motif:null, prat:null, nbSeances:1, slots:[], pourQui:"moi" };
+
+function slotsFor(pratId, duree){
+  // Créneaux fictifs, déterministes, sur les 10 prochains jours ouvrés du praticien.
+  const out = []; const p = PRAT[pratId]; const d = new Date(); d.setHours(0,0,0,0);
+  let seed = pratId.length * 7 + duree;
+  for (let i=1; out.length<6 && i<21; i++){
+    const day = new Date(d); day.setDate(d.getDate()+i);
+    if (!p.jours.includes(day.getDay())) continue;
+    const heures = [];
+    const debut = 8, fin = day.getDay()===6 ? 12 : 18;
+    for (let h=debut*60; h+duree<=fin*60; h+=duree){ seed=(seed*31+h)%97; if (seed%3===0) heures.push(h); }
+    if (heures.length) out.push({ date:day, heures:heures.slice(0,5), prat:pratId });
+  }
+  return out;
+}
+const fmtH = m => `${Math.floor(m/60)} h ${String(m%60).padStart(2,"0")}`;
+const fmtD = d => `${JOURS[d.getDay()]} ${d.getDate()} ${MOIS[d.getMonth()]}`;
+const steps = n => `<div class="steps">${[1,2,3,4].map(i=>`<span class="${i<=n?"on":""}"></span>`).join("")}</div>`;
+const motif = () => MOTIFS.find(m=>m.id===S.motif);
+const app = document.getElementById("app");
+
+function render(newScreen){
+  const y = window.scrollY; app.innerHTML = VIEWS[S.step]();
+  if (!newScreen) { window.scrollTo(0,y); return; }
+  window.scrollTo(0,0); const h = app.querySelector("h1"); if (h) { h.tabIndex=-1; h.focus(); }
+}
+function go(step){ S.step = step; render(true); }
+
+const VIEWS = {
+  motif(){
+    const groupes = [...new Set(MOTIFS.map(m=>m.groupe))];
+    return steps(1) + `<h1>Qu'est-ce qui vous amène ?</h1><p class="sub">Choisissez ce qui correspond le mieux. Pour un proche, choisissez son motif.</p>` +
+      groupes.map(g=>`<h2>${g}</h2>` + MOTIFS.filter(m=>m.groupe===g).map(m=>
+        `<button class="opt" onclick="pickMotif('${m.id}')">${m.label}${m.rappel?'<span class="tag">sur rappel</span>':""}<small>${m.aide}${m.duree?` · ${m.duree} min`:""}</small></button>`).join("")).join("") +
+      `<h2>Vous hésitez ?</h2><button class="opt" onclick="go('aide1')">Je ne sais pas : kiné ou ostéo ?<small>Deux questions pour vous orienter</small></button>`;
+  },
+  aide1(){
+    return steps(1) + `<h1>Avez-vous une ordonnance de kinésithérapie ?</h1><p class="sub">Une ordonnance de votre médecin qui prescrit des séances de kiné.</p>
+      <button class="opt" onclick="pickMotif('kine1')">Oui<small>Vous pouvez prendre une première séance de kiné</small></button>
+      <button class="opt" onclick="go('aide2')">Non</button>
+      <div class="actions"><button class="btn ghost" onclick="go('motif')">Retour</button></div>`;
+  },
+  aide2(){
+    return steps(1) + `<h1>Pour qui est le rendez-vous ?</h1><p class="sub">Sans ordonnance, l'ostéopathie est possible. La kiné nécessite une ordonnance.</p>
+      <button class="opt" onclick="pickMotif('osteo')">Un adulte</button>
+      <button class="opt" onclick="pickMotif('enceinte')">Une femme enceinte</button>
+      <button class="opt" onclick="pickMotif('nourrisson')">Un nourrisson</button>
+      <p class="sub">Pas sûr ? Appelez-nous au <a class="tel" href="#">05 xx xx xx xx</a>.</p>
+      <div class="actions"><button class="btn ghost" onclick="go('aide1')">Retour</button></div>`;
+  },
+  prat(){
+    const m = motif();
+    const ordo = m.ordo ? `<div class="note"><b>Ordonnance obligatoire.</b> Apportez-la à la première séance${m.cro?", avec le compte rendu de votre opération":""}. Sans elle, la séance ne pourra pas avoir lieu.</div>` : "";
+    const serie = m.serie ? `<label for="nb">Combien de séances voulez-vous réserver ?</label><select id="nb" onchange="S.nbSeances=+this.value">${[1,2,3,4,5,6].map(n=>`<option ${n===S.nbSeances?"selected":""}>${n}</option>`).join("")}</select>` : "";
+    const opts = m.prats.map(id=>`<button class="opt ${S.prat===id?"sel":""}" onclick="pickPrat('${id}')">${PRAT[id].nom}<small>${PRAT[id].metier}</small></button>`).join("") +
+      (m.prats.length>1 && !m.serie ? `<button class="opt ${S.prat==="indiff"?"sel":""}" onclick="pickPrat('indiff')">Le premier disponible<small>${m.prats.map(id=>PRAT[id].nom).join(" ou ")}</small></button>` : "");
+    return steps(2) + `<h1>${m.label}</h1><p class="sub">Durée : ${m.duree} min</p>` + ordo +
+      `<h2>${m.serie?"Votre kiné":"Avec qui ?"}</h2>` + opts + serie +
+      `<div class="actions"><button class="btn ghost" onclick="go('motif')">Retour</button><button class="btn primary" ${S.prat?"":"disabled"} onclick="S.slots=[];go('creneau')">Voir les créneaux</button></div>`;
+  },
+  creneau(){
+    const m = motif(); const ids = S.prat==="indiff" ? m.prats : [S.prat];
+    const days = ids.flatMap(id=>slotsFor(id,m.duree)).sort((a,b)=>a.date-b.date).slice(0,7);
+    const max = m.serie ? S.nbSeances : 1;
+    const consigne = m.serie ? `Choisissez ${max} créneau${max>1?"x":""} (${S.slots.length}/${max}).` : "Choisissez un créneau.";
+    return steps(3) + `<h1>Choisissez ${max>1?"vos créneaux":"un créneau"}</h1><p class="sub">${m.label} · ${m.duree} min · ${consigne}</p><div class="days">` +
+      days.map(d=>`<div class="day"><b>${fmtD(d.date)}${ids.length>1?` · ${PRAT[d.prat].nom}`:""}</b><div class="slots">` +
+        d.heures.map(h=>{ const key=`${d.date.toISOString()}|${h}|${d.prat}`; const on=S.slots.includes(key);
+          return `<button class="slot ${on?"sel":""}" onclick="toggleSlot('${key}',${max})">${fmtH(h)}</button>`; }).join("") + `</div></div>`).join("") +
+      `</div><div class="actions"><button class="btn ghost" onclick="go('prat')">Retour</button><button class="btn primary" ${S.slots.length===max?"":"disabled"} onclick="go('coord')">Continuer</button></div>`;
+  },
+  coord(){
+    const m = motif();
+    return steps(4) + `<h1>Vos coordonnées</h1><p class="sub">Nous ne demandons que le nécessaire. Ne décrivez pas vos symptômes ici : vous en parlerez avec le praticien.</p>
+      <label>Le rendez-vous est pour</label>
+      <label class="check"><input type="radio" name="pq" ${S.pourQui==="moi"?"checked":""} onchange="S.pourQui='moi';render()"> Moi</label>
+      <label class="check"><input type="radio" name="pq" ${S.pourQui==="proche"?"checked":""} onchange="S.pourQui='proche';render()"> Un proche (enfant, parent…)</label>
+      ${S.pourQui==="proche"?`<div class="row"><div><label for="pn">Nom du patient</label><input id="pn" type="text"></div><div><label for="pp">Prénom du patient</label><input id="pp" type="text"></div></div><label for="pd">Date de naissance du patient</label><input id="pd" type="date">`:""}
+      <div class="row"><div><label for="n">${S.pourQui==="proche"?"Votre nom":"Nom"}</label><input id="n" type="text" autocomplete="family-name"></div><div><label for="p">${S.pourQui==="proche"?"Votre prénom":"Prénom"}</label><input id="p" type="text" autocomplete="given-name"></div></div>
+      <label for="t">Téléphone portable</label><input id="t" type="tel" autocomplete="tel" placeholder="06 12 34 56 78">
+      ${S.pourQui==="moi"?`<label for="d">Date de naissance</label><input id="d" type="date">`:""}
+      <label class="check"><input type="checkbox" checked> Recevoir un SMS de rappel la veille</label>
+      ${m.ordo?`<div class="note" style="margin-top:14px">N'oubliez pas votre ordonnance.</div>`:""}
+      <div class="actions"><button class="btn ghost" onclick="go('creneau')">Retour</button><button class="btn primary" onclick="go('ok')">Confirmer le rendez-vous</button></div>`;
+  },
+  ok(){
+    const m = motif();
+    const lignes = S.slots.map(k=>{ const [iso,h,pid]=k.split("|"); return `<p>${fmtD(new Date(iso))} à ${fmtH(+h)} · ${PRAT[pid].nom}</p>`; }).join("");
+    return `<h1>C'est réservé</h1><p class="sub">Un SMS de confirmation vous a été envoyé.</p>
+      <div class="recap"><p><b>${m.label}</b> · ${m.duree} min</p>${lignes}<p>Cabinet Les Allées, Bayonne</p></div>
+      ${m.ordo?`<div class="note" style="margin-top:14px">Apportez votre ordonnance${m.cro?" et le compte rendu opératoire":""}.</div>`:""}
+      <p>Pour annuler ou déplacer : utilisez le lien dans le SMS, ou appelez le <a class="tel" href="#">05 xx xx xx xx</a>.</p>
+      <div class="actions"><button class="btn ghost" onclick="reset()">Prendre un autre rendez-vous</button></div>`;
+  },
+  rappel(){
+    const m = motif();
+    const qui = { domicile:"Julie Marty", nourrisson:"Sophie Etcheverry", ortho:"Camille Iriart" }[m.id];
+    return steps(2) + `<h1>${m.label}</h1><p class="sub">Pour ce motif, ${qui} préfère échanger avec vous avant de fixer le rendez-vous. Laissez vos coordonnées : le cabinet vous rappelle.</p>
+      ${m.id==="ortho"?`<div class="note">Le délai pour un bilan est d'environ 4 mois. Votre demande est enregistrée et Camille Iriart vous recontacte quand une place se libère. Une ordonnance est nécessaire pour le bilan.</div>`:""}
+      <div class="row"><div><label for="rn">Nom</label><input id="rn" type="text"></div><div><label for="rp">Prénom</label><input id="rp" type="text"></div></div>
+      <label for="rt">Téléphone</label><input id="rt" type="tel" placeholder="06 12 34 56 78">
+      ${m.id==="domicile"?`<label for="rv">Commune</label><select id="rv"><option>Bayonne</option><option>Anglet</option><option>Boucau</option></select>`:""}
+      ${m.id!=="domicile"?`<label for="ra">Âge du patient</label><input id="ra" type="text" placeholder="${m.id==="nourrisson"?"ex. 3 semaines":"ex. 6 ans"}">`:""}
+      <p class="sub" style="margin-top:12px">Ne décrivez pas les symptômes ici.</p>
+      <div class="actions"><button class="btn ghost" onclick="go('motif')">Retour</button><button class="btn primary" onclick="go('rappelOk')">Être rappelé</button></div>`;
+  },
+  rappelOk(){
+    return `<h1>Demande envoyée</h1><p class="sub">Le cabinet vous rappelle du lundi au jeudi, entre 8 h 30 et 12 h 30.</p>
+      <p>En cas d'urgence, contactez votre médecin ou le 15.</p>
+      <div class="actions"><button class="btn ghost" onclick="reset()">Retour à l'accueil</button></div>`;
+  }
+};
+
+function pickMotif(id){ S.motif=id; S.prat=null; S.slots=[]; S.nbSeances=1; const m=motif(); if (m.rappel) return go("rappel"); if (m.prats.length===1) S.prat=m.prats[0]; go("prat"); }
+function pickPrat(id){ S.prat=id; render(); }
+function toggleSlot(key,max){ const i=S.slots.indexOf(key); if (i>=0) S.slots.splice(i,1); else if (max===1) S.slots=[key]; else if (S.slots.length<max) S.slots.push(key); render(); }
+function reset(){ Object.assign(S,{ step:"motif", motif:null, prat:null, nbSeances:1, slots:[], pourQui:"moi" }); render(true); }
+render(true);
+</script>
+</body>
+</html>
