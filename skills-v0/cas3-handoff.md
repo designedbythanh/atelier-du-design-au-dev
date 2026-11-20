@@ -13,4 +13,4 @@ Analyse les maquettes et les sources du cadrage pour construire une documentatio
 Document qui présente le contexte, identifie le DS utilisé, spécifie les parcours et les edge cases…
 
 **Exigence**
-N'invente rien.
+N'invente rien. Réponds en 300 mots maximum.

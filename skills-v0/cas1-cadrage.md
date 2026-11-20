@@ -13,4 +13,4 @@ Analyse notre base de connaissance (les documents fournis : avis patients, notes
 Dans un tableau, liste les 10 optimisations possibles avec des niveaux de criticité.
 
 **Exigence**
-N'invente rien.
+N'invente rien. Réponds en 300 mots maximum.
