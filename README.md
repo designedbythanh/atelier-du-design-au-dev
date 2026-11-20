@@ -33,6 +33,16 @@ Chaque cas part de ses propres entrées : pas besoin d'avoir fini le précédent
 
 Le prototype du cas 3 : téléchargez `cas3-prototype.html` (bouton « Download raw file ») et ouvrez-le dans votre navigateur.
 
+## Comment juger la sortie
+
+La réponse n'est pas dans l'IA, elle est dans les fichiers du kit. Comparez la sortie avec eux.
+
+| Cas | À comparer avec | Questions |
+|---|---|---|
+| 1 · Cadrage | [`donnees/notes-secretariat.md`](donnees/notes-secretariat.md) | Ce que Nathalie dit et que la sortie ne dit pas, c'est un manque. Chaque affirmation se rattache-t-elle à un avis ou à une note ? Un chiffre sans source est inventé. Est-ce un problème posé, ou déjà une liste de solutions ? |
+| 2 · Idéation | [`entrees/cas2-cadrage.md`](entrees/cas2-cadrage.md) | Le cadrage sert de grille : chaque idée passe par « À ne pas casser », « Contraintes » et « Ce qu'on ne fait pas ». Une idée qui en viole une ligne tombe. Pour les autres : qui y perd, parmi les profils de « Pour qui » ? Peut-on la tester lundi, sans développement ? |
+| 3 · Handoff | [`entrees/cas3-prototype.html`](entrees/cas3-prototype.html) | Le dev ouvre le prototype dans son navigateur et clique le parcours. Avec ce document seul, pourrait-il coder demain sans revenir vers le designer ? |
+
 ## Écrire votre v1
 
 Partez du [template d'une page](template/skill-template.md).
